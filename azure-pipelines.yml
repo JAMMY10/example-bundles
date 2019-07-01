@@ -17,8 +17,8 @@ variables:
   azureResourceGroup: myResourceGroup
   kubernetesCluster: myAKSCluster
 
-  pool:
-    vmImage: 'ubuntu-latest'
+# Agent VM image name
+  vmImage: 'ubuntu-latest'
 
 stages:
 - stage: Install
