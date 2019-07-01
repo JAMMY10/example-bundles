@@ -5,9 +5,9 @@ variables:
   duffle_release_name: hellohelm
   # set this variable which contains all the config files required to execute duffle commands
   DUFFLE_HOME: $(Agent.BuildDirectory)/duffle
-  azureSubscriptionEndpoint: contoso
-  azureResourceGroup: cnab
-  kubernetesCluster: cnab
+  azureSubscriptionEndpoint: AS
+  azureResourceGroup: myResourceGroup
+  kubernetesCluster: myAKSCluster
 # Starter pipeline
 # Start with a minimal pipeline that you can customize to build and deploy your code.
 # Add steps that build, run tests, deploy, and more:
