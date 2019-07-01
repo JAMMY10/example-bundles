@@ -18,7 +18,7 @@ variables:
   kubernetesCluster: myAKSCluster
 
 # Agent VM image name
-  vmImage: 'ubuntu-latest'
+  vmImageName: 'ubuntu-latest'
 
 stages:
 - stage: Install
