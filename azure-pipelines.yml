@@ -52,7 +52,7 @@ stages:
         - task: PublishBuildArtifacts@1
           displayName: Publish Artifact
           inputs:
-            PathtoPublish: '$(Agent.BuildDirectory)/duffle'
+            PathtoPublish: $(Agent.BuildDirectory)/duffle
             ArtifactName: duffle
 
 - stage: Uninstall
