@@ -1,0 +1,138 @@
+# at the top of your YAML file 
+# set some variables that you'll need when you deploy
+variables:
+  # set this variable name for the bundle installation
+  duffle_release_name: hellohelm
+  # set this variable which contains all the config files required to execute duffle commands
+  DUFFLE_HOME: $(Agent.BuildDirectory)/duffle
+  azureSubscriptionEndpoint: contoso
+  azureResourceGroup: cnab
+  kubernetesCluster: cnab
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+stages:
+- stage: Install
+  displayName: Duffle Install
+  jobs:  
+    - job: Build
+      displayName: Duffle Install
+      pool: 
+        vmImage: $(vmImageName)
+      steps:
+        - task: DuffleInstaller@0
+          displayName: Install Duffle 0.1.0-ralpha.4+dramallamabuie
+          inputs:
+            version: '0.1.0-ralpha.4+dramallamabuie'
+            checkLatestVersion: true
+
+        - task: Kubernetes@1
+          displayName: kubectl login
+          inputs:
+            connectionType: Azure Resource Manager
+            azureSubscriptionEndpoint: $(azureSubscriptionEndpoint)
+            azureResourceGroup: $(azureResourceGroup)
+            kubernetesCluster: $(kubernetesCluster)
+            command: login
+
+        - powershell: |
+            mkdir  $(Agent.BuildDirectory)/duffle
+            duffle install $(duffle_release_name) -f hellohelm/bundle.json -k -c hellohelm/creds.yaml
+          displayName: PowerShell Script
+
+        - task: PublishBuildArtifacts@1
+          displayName: Publish Artifact
+          inputs:
+            PathtoPublish: '$(Agent.BuildDirectory)/duffle'
+            ArtifactName: duffle
+
+- stage: Uninstall
+  displayName: Duffle Uninstall
+  dependsOn: Install
+  condition: failed()
+  jobs:  
+  - job: Build
+    displayName: Duffle Uninstall
+    pool: 
+      vmImage: $(vmImageName)    
+    steps:
+    - task: DuffleInstaller@0
+      displayName: Install Duffle 0.1.0-ralpha.4+dramallamabuie
+      inputs:
+        version: '0.1.0-ralpha.4+dramallamabuie'
+        checkLatestVersion: true
+
+    - task: Kubernetes@1
+      displayName: kubectl login
+      inputs:
+        connectionType: Azure Resource Manager
+        azureSubscriptionEndpoint: $(azureSubscriptionEndpoint)
+        azureResourceGroup: $(azureResourceGroup)
+        kubernetesCluster: $(kubernetesCluster)
+        command: login
+
+    - task: DownloadBuildArtifacts@0
+      displayName: Download Build Artifacts
+      inputs:
+        artifactName: duffle
+        itemPattern: 'duffle/**'
+        downloadPath: '$(Agent.BuildDirectory)'
+
+    - powershell: |
+        duffle claims list
+        duffle uninstall $(duffle_release_name) -c hellohelm/creds.yaml
+      displayName: PowerShell Script
+
+- stage: Upgrade
+  displayName: Duffle Upgrade
+  dependsOn: Install
+  condition: succeeded()
+  jobs:  
+  - job: Build
+    displayName: Duffle Upgrade
+    pool: 
+      vmImage: $(vmImageName)    
+    steps:
+    - task: DuffleInstaller@0
+      displayName: Install Duffle 0.1.0-ralpha.4+dramallamabuie
+      inputs:
+        version: '0.1.0-ralpha.4+dramallamabuie'
+        checkLatestVersion: true
+
+    - task: Kubernetes@1
+      displayName: kubectl login
+      inputs:
+        connectionType: Azure Resource Manager
+        azureSubscriptionEndpoint: $(azureSubscriptionEndpoint)
+        azureResourceGroup: $(azureResourceGroup)
+        kubernetesCluster: $(kubernetesCluster)
+        command: login
+
+    - task: DownloadBuildArtifacts@0
+      displayName: Download Build Artifacts
+      inputs:
+        artifactName: duffle
+        itemPattern: 'duffle/**'
+        downloadPath: '$(Agent.BuildDirectory)'
+
+    - powershell: |
+        duffle upgrade $(duffle_release_name) -c hellohelm/creds.yaml
+      displayName: PowerShell Script
+      
+      steps:
+- script: echo Hello, world!
+  displayName: 'Run a one-line script'
+
+- script: |
+    echo Add other tasks to build, test, and deploy your project.
+    echo See https://aka.ms/yaml
+  displayName: 'Run a multi-line script'
+
