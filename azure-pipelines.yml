@@ -19,7 +19,6 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
-stages:
 - stage: Install
   displayName: Duffle Install
   jobs:  
