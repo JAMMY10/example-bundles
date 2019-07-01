@@ -1,3 +1,11 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- master
+
 # at the top of your YAML file 
 # set some variables that you'll need when you deploy
 variables:
@@ -8,13 +16,6 @@ variables:
   azureSubscriptionEndpoint: AS
   azureResourceGroup: myResourceGroup
   kubernetesCluster: myAKSCluster
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
-trigger:
-- master
 
 pool:
   vmImage: 'ubuntu-latest'
@@ -126,13 +127,4 @@ stages:
     - powershell: |
         duffle upgrade $(duffle_release_name) -c hellohelm/creds.yaml
       displayName: PowerShell Script
-      
-      steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
-
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
 
